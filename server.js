@@ -24,24 +24,19 @@ app.get("/", (req, res) => {
 */
 app.get("/save", async (req, res) => {
   try {
-    const response = await fetch("https://ipinfo.io/json");
+    const userIp =
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.socket.remoteAddress;
+
+    const response = await fetch(
+      `https://ipinfo.io/${userIp}/json`
+    );
+
     const data = await response.json();
-
-    console.log(data);
-
-    const saveResponse = await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const googleBody = await saveResponse.text();
 
     res.json({
       success: true,
-      googleResponse: googleBody,
+      visitorIp: userIp,
       data,
     });
 
