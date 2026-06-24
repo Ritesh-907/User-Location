@@ -42,12 +42,15 @@ app.get("/save", async (req, res) => {
 
       Otherwise use .text()
     */
-    const result = await saveResponse.json();
+    const result = await saveResponse.text();
 
+    console.log("Google Script Status:", saveResponse.status);
+    console.log("Google Script Response:");
     console.log(result);
 
     res.json({
       success: true,
+      googleStatus: saveResponse.status,
       saved: result,
       data,
     });
