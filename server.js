@@ -10,24 +10,28 @@ const GOOGLE_SCRIPT_URL =
 
 app.use(express.json());
 
+console.log("DEPLOY VERSION: DEBUG-V1");
+
 /*
-  Health Check Route
+  Health check
 */
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
 /*
-  Save data to Google Sheets
+  Fetch IP data and save to Google Sheets
 */
 app.get("/save", async (req, res) => {
   try {
+    // Get IP information
     const response = await fetch("https://ipapi.co/json/");
     const data = await response.json();
 
-    console.log("Received JSON:");
+    console.log("IP Data:");
     console.log(data);
 
+    // Send to Google Apps Script
     const saveResponse = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: {
@@ -36,25 +40,27 @@ app.get("/save", async (req, res) => {
       body: JSON.stringify(data),
     });
 
-    /*
-      If your Apps Script returns JSON,
-      keep .json()
+    // IMPORTANT: DO NOT USE .json()
+    const googleBody = await saveResponse.text();
 
-      Otherwise use .text()
-    */
-    const result = await saveResponse.text();
+    console.log("Google Status:", saveResponse.status);
+    console.log("Google Response:");
+    console.log(googleBody);
 
-    console.log("Google Script Status:", saveResponse.status);
-    console.log("Google Script Response:");
-    console.log(result);
-
-    res.send(result)
+    res.json({
+      success: true,
+      googleStatus: saveResponse.status,
+      googleResponse: googleBody,
+      data,
+    });
   } catch (error) {
+    console.error("ERROR:");
     console.error(error);
 
     res.status(500).json({
       success: false,
       error: error.message,
+      stack: error.stack,
     });
   }
 });
