@@ -42,14 +42,11 @@ app.get("/save", async (req, res) => {
 
     res.json({
       success: true,
+      visitorIp: userIp,
       googleResponse: googleBody,
       data,
     });
-    res.json({
-      success: true,
-      visitorIp: userIp,
-      data,
-    });
+    
   } catch (error) {
     res.status(500).json({
       success: false,
