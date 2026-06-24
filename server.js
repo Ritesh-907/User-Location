@@ -3,28 +3,30 @@ import fetch from "node-fetch";
 
 const app = express();
 
+const PORT = process.env.PORT || 4000;
+
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwV-QVriMdUfOPBRtDeMi9NdpaKlIPY08G47PtMaOZRAoL6ssxqp3Xs2VKEEAJHPxsclw/exec";
 
 app.use(express.json());
 
-app.get("/", async (req, res) => {
+/*
+  Health Check Route
+*/
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
+
+/*
+  Save data to Google Sheets
+*/
+app.get("/save", async (req, res) => {
   try {
-
-    /*
-      Example API returning JSON.
-      Replace with any API you want.
-    */
-
     const response = await fetch("https://ipapi.co/json/");
     const data = await response.json();
 
     console.log("Received JSON:");
     console.log(data);
-
-    /*
-      Save JSON to Google Sheets
-    */
 
     const saveResponse = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
@@ -34,6 +36,12 @@ app.get("/", async (req, res) => {
       body: JSON.stringify(data),
     });
 
+    /*
+      If your Apps Script returns JSON,
+      keep .json()
+
+      Otherwise use .text()
+    */
     const result = await saveResponse.json();
 
     console.log(result);
@@ -43,7 +51,6 @@ app.get("/", async (req, res) => {
       saved: result,
       data,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -54,6 +61,6 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.listen(4000, () => {
-  console.log("http://localhost:4000");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
