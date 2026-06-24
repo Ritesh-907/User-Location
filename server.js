@@ -48,12 +48,7 @@ app.get("/save", async (req, res) => {
     console.log("Google Script Response:");
     console.log(result);
 
-    res.json({
-      success: true,
-      googleStatus: saveResponse.status,
-      saved: result,
-      data,
-    });
+    res.send(result)
   } catch (error) {
     console.error(error);
 
