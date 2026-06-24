@@ -24,14 +24,11 @@ app.get("/", (req, res) => {
 */
 app.get("/save", async (req, res) => {
   try {
-    // Get IP information
-    const response = await fetch("https://ipapi.co/json/");
+    const response = await fetch("https://ipinfo.io/json");
     const data = await response.json();
 
-    console.log("IP Data:");
     console.log(data);
 
-    // Send to Google Apps Script
     const saveResponse = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: {
@@ -40,31 +37,21 @@ app.get("/save", async (req, res) => {
       body: JSON.stringify(data),
     });
 
-    // IMPORTANT: DO NOT USE .json()
     const googleBody = await saveResponse.text();
-
-    console.log("Google Status:", saveResponse.status);
-    console.log("Google Response:");
-    console.log(googleBody);
 
     res.json({
       success: true,
-      googleStatus: saveResponse.status,
       googleResponse: googleBody,
       data,
     });
-  } catch (error) {
-    console.error("ERROR:");
-    console.error(error);
 
+  } catch (error) {
     res.status(500).json({
       success: false,
       error: error.message,
-      stack: error.stack,
     });
   }
 });
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
